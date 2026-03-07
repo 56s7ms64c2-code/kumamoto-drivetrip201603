@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐻 2026 熊本尋熊自駕攻略 🎫</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ticket-bg: #fff;
+            --cal-blue: #1c355e; /* 中華航空深藍 */
+            --cal-red: #bb2b31;  /* 中華航空梅花紅 */
+            --border-color: #333;
+            --marker-blue: #3498db;
+            --marker-green: #27ae60;
+            --marker-yellow: #f1c40f;
+            --ticket-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --page-bg: #f0ebe3;
+        }
+
+        /* 建立一個固定背景層，確保網點完全連貫 */
+        .page-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--page-bg);
+            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+        }
+
+        body { 
+            font-family: 'Gaegu', 'Noto Sans TC', cursive; 
+            margin: 0; padding: 10px; color: #333;
+            background-color: transparent; 
+        }
+
+        .container { max-width: 600px; margin: 0 auto; filter: drop-shadow(var(--ticket-shadow)); }
+
+        .boarding-pass {
+            background: var(--cal-blue); color: white; border: 3px solid var(--border-color);
+            border-radius: 20px 20px 0 0; padding: 0; position: relative;
+            overflow: hidden;
+        }
+        .cal-header {
+            background: var(--cal-red); padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .cal-header span { font-weight: bold; letter-spacing: 1px; }
+        .pass-content { padding: 20px; }
+        .pass-route { display: flex; justify-content: space-between; font-size: 1.8em; font-weight: bold; margin-bottom: 5px; }
+        .flight-time-sub { display: flex; justify-content: space-between; font-size: 0.8em; opacity: 0.9; margin-bottom: 10px; font-family: sans-serif; }
+        
+        .flight-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; font-size: 0.9em; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 15px; }
+        
+        .rental-box {
+            background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.5);
+            padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 0.9em;
+        }
+
+        .ticket-body {
+            background: var(--ticket-bg); border: 3px solid var(--border-color);
+            border-top: none; padding: 20px; position: relative;
+            background-image: linear-gradient(#eee 1px, transparent 1px); background-size: 100% 2.4rem;
+        }
+
+        .perforation { border-top: 3px dashed var(--border-color); margin: 25px -20px; position: relative; }
+        .perforation::before, .perforation::after {
+            content: ""; width: 30px; height: 30px;
+            background: transparent; 
+            box-shadow: 0 0 0 10px var(--page-bg); 
+            border: 3px solid var(--border-color);
+            border-radius: 50%; position: absolute; top: -18px;
+            z-index: 2;
+        }
+        .perforation::before { left: -18px; }
+        .perforation::after { right: -18px; }
+
+        .day-tag {
+            color: white; padding: 4px 15px; border-radius: 5px;
+            font-size: 1.2em; display: inline-block; transform: rotate(-1deg);
+            margin-bottom: 15px; border: 2px solid var(--border-color);
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+        }
+
+        .event { margin: 18px 0; padding-left: 15px; border-left: 4px solid #eee; position: relative; }
+        .time-badge { background: #333; color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 1em; margin-right: 8px; }
+        .place-title { font-weight: bold; font-size: 1.15em; color: #000; }
+        
+        .mc-stamp { display: inline-block; border: 2px solid var(--marker-green); color: var(--marker-green); padding: 1px 8px; border-radius: 4px; font-size: 0.85em; margin: 5px 0; transform: rotate(1deg); font-weight: bold; }
+
+        .tips { font-size: 0.95em; color: #444; background: #fffdf0; padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px dashed #bbb; line-height: 1.6; }
+        .link-btn { display: inline-block; padding: 6px 14px; background: #333; color: white !important; text-decoration: none; border-radius: 5px; font-size: 0.85em; margin: 8px 5px 0 0; border-bottom: 3px solid #000; }
+
+        .contract-section {
+            background: #fff; border: 3px solid var(--border-color); border-top: none;
+            padding: 20px; position: relative;
+        }
+        .contract-title {
+            background: #333; color: #fff; text-align: center; padding: 10px;
+            font-size: 1.4em; margin: -20px -20px 20px -20px;
+        }
+        .clause-item {
+            margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px;
+        }
+        .clause-header {
+            font-weight: bold; color: var(--cal-red); display: block; margin-bottom: 5px;
+        }
+        .highlight-name {
+            background: #ffeb3b; padding: 0 4px; border-radius: 3px; font-weight: bold;
+        }
+        
+        footer { text-align: center; padding: 25px; border: 3px solid var(--border-color); border-top: none; background: #eee; border-radius: 0 0 20px 20px; font-size: 0.8em; color: #666; }
+        .important-red { color: #bb2b31; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="page-background"></div>
+
+<div class="container">
+    <div class="boarding-pass">
+        <div class="cal-header">
+            <span>✈️ CHINA AIRLINES 中華航空</span>
+            <span style="font-size: 0.8em;">BOARDING PASS</span>
+        </div>
+        <div class="pass-content">
+            <div class="pass-route">
+                <span>TPE</span>
+                <span style="font-size: 0.5em; align-self: center; opacity: 0.7;">✈ CI 194 ➔</span>
+                <span>KMJ</span>
+            </div>
+            <div class="flight-time-sub"><span>DEP 14:30</span><span>ARR 17:30</span></div>
+
+            <div class="pass-route" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 10px;">
+                <span>KMJ</span>
+                <span style="font-size: 0.5em; align-self: center; opacity: 0.7;">✈ CI 195 ➔</span>
+                <span>TPE</span>
+            </div>
+            <div class="flight-time-sub"><span>DEP 18:40</span><span>ARR 20:15</span></div>
+
+            <div class="flight-info">
+                <div><small>DATE</small><br><b>APR 23-26</b></div>
+                <div><small>AIRCRAFT</small><br><b>A321neo</b></div>
+                <div><small>CLASS</small><br><b>ECONOMY</b></div>
+            </div>
+            <div class="rental-box">
+                <b>🚗 租車重點：</b><br>
+                • 攜帶：護照、駕照正本、日文譯本。<br>
+                • 取車：錄影全車外觀、確認油箱滿格。<br>
+                • 還車：加滿 <span style="color:#ffda79; font-weight:bold;">Regular (紅色油槍)</span>。
+            </div>
+        </div>
+    </div>
+
+    <div class="ticket-body">
+        <div class="day-box">
+            <div class="day-tag" style="background: var(--cal-red);">Day 1 ➔ 4/23 抵達熊本、大津町補給</div>
+            <div class="event">
+                <span class="time-badge">18:20</span> <span class="place-title">空港取車 🚗</span>
+            </div>
+            <div class="event">
+                <span class="time-badge">19:10</span> <span class="place-title">大津町晚餐及補給 🍣</span><br>
+                <div class="tips">
+                    🍣 <b>くら sushi：</b>256 641 127*53<br>
+                    🛒 <b>鮮度市場大津店（超市）：</b>256 641 127*82<br>
+                    🍴 <b>Joyfull家庭餐廳：</b>256 611 744*11
+                </div>
+                <a href="https://www.joyfull.co.jp/menu/pdf/i18n_menu/2025winter-autumn/China_Traditional_menu.pdf" class="link-btn">📖 Joyfull 菜單</a>
+            </div>
+            <div class="event">
+                <span class="time-badge">20:30</span> <span class="place-title">入住 旅館 わかば ♨️</span><br>
+                <div class="tips">📍 〒869-2402 滿願寺 6594-2</div>
+            </div>
+        </div>
+
+        <div class="perforation"></div>
+
+        <div class="day-box">
+            <div class="day-tag" style="background: var(--marker-green);">Day 2 ➔ 4/24 黑川巡禮與阿蘇絕景</div>
+            <div class="event">
+                <span class="time-badge">10:00</span> <span class="place-title">黑川退房/溫泉街散策 ♨️</span><br>
+                <span class="mc-stamp">MC: 440 542 809*03</span>
+                <div class="tips">
+                    🥛 <b>山吹色牛乳：</b>滿願寺 6994 (濃厚牛乳)<br>
+                    ☕ <b>Au Pan & Coffee：</b>滿願寺 6733-1 (手沖咖啡及麵包)<br>
+                    🥚 <b>いこい旅館：</b>滿願寺 6548 (100円溫泉蛋)<br>
+                    🥐 <b>パティスリー麓：</b>滿願寺 6610 (酥皮泡芙)<br>
+                    🍦 <b>湯音 Cafe：</b>滿願寺 6602 (霜淇淋/可樂餅)<br>
+                    🎁 <b>おみやげ町屋：</b>滿願寺 6600-3
+                </div>
+                <a href="https://www.kurokawaonsen.or.jp/t_english/images/common/pamphlet_tw.pdf" class="link-btn" style="background:#4a90e2;">🗺️ 黑川地圖</a>
+            </div>
+
+            <div class="event">
+                <span class="time-badge">11:40</span> <span class="place-title">大觀峰展望台 ⏱車程：約 40 分🔭</span><br>
+                <span class="mc-stamp">MC: 256 878 311*30</span>
+            </div>
+
+            <div class="event">
+                <span class="time-badge">12:30</span> <span class="place-title">阿蘇神社午餐（附近有停車場） ⏱車程：約 30 分 </span><br>
+                <span class="mc-stamp">MC: 256 704 306*01</span>
+                <div class="tips">🍚 <b>推薦：ごとう屋</b> (不排隊首選赤牛丼)。</div>
+                <a href="https://asogotoya.jp/menu.html">🥩 菜單連結</a>
+            </div>
+
+            <div class="event">
+                <span class="time-badge">14:00</span> <span class="place-title">阿蘇牛奶巡禮🥛</span><br>
+                <span class="mc-stamp">阿蘇車站 ⏱車程：約 10 分 MC: 256 669 086*77</span>
+                <div class="tips">
+                    📍 <b>道の駅阿蘇：</b>買紅款 <b>ASO MILK</b> (阿部牧場)。<br>
+                    📍 <b>阿蘇夢の湯：</b>買紫款 <b>阿蘇りん道</b> (低溫殺菌濃厚款)。
+                </div>
+            </div>
+
+<div class="event"> 
+                <span class="time-badge">14:30</span> <span class="place-title">上色見熊野座神社 ⛩️ ⏱車程：約20分</span><br>
+                <span class="mc-stamp">MC: 256 125 565*14</span> 
+                <div class="tips">🌲 <b>異世界入口：</b>《螢火之森》取景地，絕美杉木林。</div> 
+            </div>
+
+            <div class="event">
+                <span class="time-badge">16:00</span> <span class="place-title">中岳火山口 🌋 ⏱車程：約 25 分</span><br>
+                <span class="mc-stamp">MC: 256 459 211*55</span>
+                <a href="http://www.aso.ne.jp/~volcano/" class="link-btn" style="background:var(--cal-red);">🚨 火山口即時官網</a>
+            </div>
+
+            <div class="event">
+                <span class="time-badge">16:20</span> <span class="place-title">草千里之濱/米塚抹茶山🍵 ⏱️車程約 10–12 分鐘 </span><br>
+                <span class="mc-stamp">MC: 256 456 520*60</span>
+                <div class="tips">
+                    🌋 <b>阿蘇山上ターミナル(離火山口5分鐘）：</b>必吃「火山灰冰淇淋」。<br>
+                    ☕ <b>草千里珈琲焙煎所：</b>10:00–17:00 草原景觀極簡咖啡廳。<br>
+                    🍵 <b>米塚：</b>必拍「抹茶布丁山」。
+                </div>
+            </div>
+
+            <div class="event">
+                <span class="time-badge">17:00</span> <span class="place-title">遠眺台積電 (JASM)-護國神山人人景仰🏭</span><br>
+                <span class="mc-stamp">MC: 256 612 284*41</span>
+            </div>
+
+            <div class="event" style="margin-top: 10px;">
+                <a href="https://maps.app.goo.gl/1VnJCM5Eyc3TzRZM9?g_st=i">🗺️ 阿蘇火山自駕地圖</a>
+            </div>
+
+            <div class="event">
+                <span class="time-badge">18:30</span> <span class="place-title">入住 ➔ Sumitsugu House 🏠</span><br>
+                <div class="tips">
+                📍 <b>地址：</b>〒860-0801 熊本県熊本市中央区安政町 4-23<br>
+                🍱 <b>晚餐：</b>AMU PLAZA 熊本 (勝烈亭豬排、黑亭拉麵)。
+                </div>
+                <a href="https://www.jrkumamotocity.com/amu" class="link-btn" style="background:#000;">🏢 AMU PLAZA 官網</a>
+            </div>
+        </div>
+
+        <div class="perforation"></div>
+
+        <div class="day-box">
+            <div class="day-tag" style="background: var(--marker-blue);">Day 3 ➔ 4/25 尋找熊本熊與百貨採買🛍️</div>
+            <div class="event">
+                <span class="time-badge">12:00</span> <span class="place-title">八代港熊本熊公園-超多熊本熊一起大合唱 📸</span><br>
+                <span class="mc-stamp">MC: 128 411 113*66</span>
+            </div>
+            <div class="event">
+                <span class="time-badge">13:30</span> <span class="place-title">AEON Mall 熊本🛒－都來熊本了能不買嗎！！</span><br>
+                <span class="mc-stamp">MC: 175 168 644*85</span>
+            </div>
+            <div class="event">
+                <span class="time-badge">18:00</span> <span class="place-title">櫻町熊本夜間點燈🏮</span><br>
+                <span class="mc-stamp">MC: 29 459 668*84</span><br>
+                <a href="https://sakuramachi-kumamoto.jp/" class="link-btn" style="background:#4a4a4a;">🏯櫻町熊本官網</a>
+            </div>
+        </div>
+
+        <div class="day-box">
+            <div class="day-tag" style="background: var(--marker-yellow); color: #333;">Day 4 ➔ 4/26 踏上歸途 ✈️</div>
+            <div class="event">
+                <span class="time-badge">10:40</span> <span class="place-title">熊本熊廣場 ✨-直擊熊本熊辦公現場</span><br>
+                <a href="https://kumamon-land.jp/square/index/2026-03#calendar" class="link-btn" style="background:var(--cal-red);">📅 熊本熊見面會行事曆</a>
+            </div>
+            <div class="event">
+                <span class="time-badge">12:15</span> <span class="place-title">上/下通午餐與購物 🥢</span><br>
+                <div class="tips">🥢 <b>雪花山房：</b>老店蕎麥麵（到14:00）。🛍️ <b>上下通商店街：</b>藥妝補貨。</div>
+            </div>
+            <div class="event">
+                <span class="time-badge">15:30</span> <span class="place-title">還車 ➔ 機場 ⛽</span><br>
+                <div class="tips">加滿 <span class="important-red">Regular 紅色油槍</span>。✈️ CI 195 (18:40)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="contract-section">
+        <div class="contract-title">📜 旅遊「絕交預防條款」</div>
+        <p style="text-align: center; font-size: 0.9em; margin-bottom: 20px;">（出發前請全體肅穆朗讀一次）</p>
+
+        <div class="clause-item">
+            <span class="clause-header">第一條｜吃飯決策條款</span>
+            當問「吃什麼？」禁止回答：隨便、都可以、你們決定。違者直接帶去第一家看到的店，但還是要看下有沒有<span class="highlight-name">昭哥</span>可以吃的（不可以餓到開車的人）。
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第二條｜駕駛至上條款</span>
+            開車的人最大。開車的人說「要休息」、「要吃飯」或「回飯店」，今日行程即刻結束。
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第三條｜喬姐購物保護法</span>
+            鑑於<span class="highlight-name">喬姐</span>時隔最久沒去日本：行李箱請不要客氣帶最大尺寸、購物金額無上限、見藥妝店必停。全員任務：陪逛、附和、說很好看。<span class="highlight-name">喬姐指定違約條款：沒說很好看的要罰寫十遍「我要成為誇誇獸！」</span>
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第四條｜迷路免責法</span>
+            若迷路，禁止說「我剛剛就說...」、「都你帶錯」。唯一合法發言：<span style="color:var(--marker-green); font-weight:bold;">「哇！我們發現新景點，這裡好漂亮。」</span>
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第五條｜廁所誠實原則</span>
+            有想上廁所的念頭，請立刻誠實說出來。憋尿行為有破病之風險。
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第六條｜起床戰爭處理流程</span>
+            若早上起不來則依序：溫柔叫醒、敲門、群組瘋狂標記。最終措施：「我們先行去吃早餐了。」
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第七條｜購物翻譯條款</span>
+            當團員說「最後一間店」，請翻譯為「還有三間店」，要知道購物是沒有盡頭的！<span class="highlight-name">若要一哄而散要先說，不然昭哥有可能會使出寶寶牽繩大法。</span>
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第八條｜行程爆炸應對法</span>
+            若行程 delay：找咖啡、找食物、拍照、接受現實。
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第九條｜體重共同承擔制度</span>
+            吃胖是團體責任，<span class="highlight-name">不准有人偷偷變瘦，</span>回國一起面對體重計還有未知的信用卡帳單。
+        </div>
+
+        <div class="clause-item">
+            <span class="clause-header">第十條｜友情存活條款</span>
+            旅行後若還願意吃飯、出國、群組存續，恭喜本次旅行<b>成功避免絕交</b>。
+        </div>
+    </div>
+
+    <footer>
+        📋 2026 熊本尋熊自駕冒險手帳 📋<br>
+        Copyright © 2026 Kumamoto Drive Trip. All rights reserved.
+    </footer>
+</div>
+
+</body>
+</html>
